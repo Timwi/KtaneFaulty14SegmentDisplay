@@ -14,10 +14,10 @@ MonoBehaviour:
   id: Faulty14SegmentDisplaysModule
   title: Faulty 14 Segment Displays
   author: Quinn Wuest
-  description: 'But if our eyes are real, then the module is real as well.
+  description: 'But if our eyes are real, then the module is real as well. Oh god.
 
 
     Made by Quinn Wuest'
   version: 1.0
   outputFolder: build
-  previewImage: {fileID: 2800000, guid: 38a80f62feb22c641b944dd6659b064b, type: 3}
+  previewImage: {fileID: 2800000, guid: a5dd66257ac3a224498e099d6ed5a237, type: 3}
