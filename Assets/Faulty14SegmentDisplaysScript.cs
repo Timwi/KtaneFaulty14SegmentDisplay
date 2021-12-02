@@ -191,7 +191,8 @@ public class Faulty14SegmentDisplaysScript : MonoBehaviour
             Debug.LogFormat("[Faulty 14 Segment Displays #{0}] Not all color channels have been correctly swapped. Strike.", _moduleId);
         }
         else
-        {;
+        {
+            ;
             StartCoroutine(SolveAnimation());
             Debug.LogFormat("[Faulty 14 Segment Displays #{0}] All color channels have been correctly swapped. Module solved.", _moduleId);
         }
@@ -322,7 +323,8 @@ public class Faulty14SegmentDisplaysScript : MonoBehaviour
             new bool[14] { true, true, false, false, false, false, true, true, false, false, false, false, true, true },   //S
         };
         var dashSegs = new bool[14] { false, false, false, false, false, false, true, true, false, false, false, false, false, false };
-        for (int j = 0; j < solveSegs.Length; j++) {
+        for (int j = 0; j < solveSegs.Length; j++)
+        {
             for (int i = 0; i < SegmentObjs.Length; i++)
                 SegmentObjs[i].GetComponent<MeshRenderer>().material = SegmentMats[solveSegs[j][i] ? 2 : 0];
             yield return new WaitForSeconds(0.15f);
@@ -334,83 +336,129 @@ public class Faulty14SegmentDisplaysScript : MonoBehaviour
     }
 
 #pragma warning disable 0414
-    private readonly string TwitchHelpMessage = "!{0} swap 1 14 [Swap segments 1 and 14] | !{0} red [Pick colors red/green/blue] | !{0} toggle [Pauses/resumes the cycle] | !{0} left/right [Cycle left/right in the sequence] | !{0} submit [Submit the answer]";
+    private readonly string TwitchHelpMessage = "!{0} swap 1 14 [Swap segments 1 and 14] | !{0} red [Pick colors red/green/blue] | !{0} toggle [Pauses/resumes the cycle] | !{0} left/right [Cycle left/right in the sequence] | !{0} submit [Submit the answer] | Commands can be chained with commas and semicolons.";
 #pragma warning restore 0414
 
     private IEnumerator ProcessTwitchCommand(string command)
     {
         Match m;
-        m = Regex.Match(command, @"^\s*swap\s*(\d+)\s*(\d+)\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-        if (m.Success)
+        var commands = command.ToLowerInvariant().Split(';', ',');
+        foreach (var cmd in commands)
         {
-            yield return null;
-            Debug.LogFormat("swap {0} {1}", m.Groups[1].Value, m.Groups[2].Value);
-            int val1;
-            int val2;
-            if (!int.TryParse(m.Groups[1].Value, out val1) || !int.TryParse(m.Groups[2].Value, out val2))
+            Debug.Log(cmd);
+            m = Regex.Match(cmd, @"^\s*swap\s*(\d+)\s*(\d+)\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+            if (m.Success)
             {
-                yield return "sendtochaterror Invalid segments! Must be in the range from 1 to 14";
-                yield break;
+                int val1;
+                int val2;
+                if (!int.TryParse(m.Groups[1].Value, out val1) || !int.TryParse(m.Groups[2].Value, out val2))
+                {
+                    yield return "sendtochaterror Invalid segments! Must be in the range from 1 to 14";
+                    yield break;
+                }
+                if (val1 > 14 || val2 > 14 || val1 < 1 || val2 < 1)
+                {
+                    yield return "sendtochaterror Invalid segments! Must be in the range from 1 to 14";
+                    yield break;
+                }
+                continue;
             }
-            if (val1 > 14 || val2 > 14)
+            m = Regex.Match(cmd, @"^\s*(red|green|blue)\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+            if (m.Success)
             {
-                yield return "sendtochaterror Invalid segments! Must be in the range from 1 to 14";
-                yield break;
+                continue;
             }
-            SegmentSels[val1 - 1].OnInteract();
-            yield return new WaitForSeconds(0.2f);
-            SegmentSels[val2 - 1].OnInteract();
-            yield return new WaitForSeconds(0.1f);
-            yield break;
-        }
-        m = Regex.Match(command, @"^\s*(red|green|blue)\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-        if (m.Success)
-        {
-            yield return null;
-            var col = m.Groups[1].ToString();
-            if (col == "red")
-                ColorPickerSels[0].OnInteract();
-            else if (col == "green")
-                ColorPickerSels[1].OnInteract();
-            else if (col == "blue")
-                ColorPickerSels[2].OnInteract();
-            yield return new WaitForSeconds(0.1f);
-            yield break;
-        }
-        m = Regex.Match(command, @"^\s*(left|right)\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-        if (m.Success)
-        {
-            yield return null;
-            if (_isCycling)
+            m = Regex.Match(cmd, @"^\s*(left|right)\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+            if (m.Success)
             {
-                yield return "sendtochaterror You can't go left or right if the sequence is still cycling!";
-                yield break;
+                if (_isCycling)
+                {
+                    yield return "sendtochaterror You can't go left or right if the sequence is still cycling!";
+                    yield break;
+                }
+                continue;
             }
-            var btn = m.Groups[1].ToString();
-            if (btn == "left")
-                LeftSel.OnInteract();
-            else if (btn == "right")
-                RightSel.OnInteract();
-            yield return new WaitForSeconds(0.1f);
+            m = Regex.Match(cmd, @"^\s*(pause|play|resume|toggle)\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+            if (m.Success)
+            {
+                continue;
+            }   
+            m = Regex.Match(cmd, @"^\s*(submit)\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+            if (m.Success)
+            {
+                continue;
+            }
             yield break;
         }
-        m = Regex.Match(command, @"^\s*(pause|play|resume|toggle)\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-        if (m.Success)
+        yield return null;
+        foreach (var cmd in commands)
         {
-            yield return null;
-            PlayPauseSel.OnInteract();
-            yield return new WaitForSeconds(0.1f);
+            m = Regex.Match(cmd, @"^\s*swap\s*(\d+)\s*(\d+)\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+            if (m.Success)
+            {
+                int val1;
+                int val2;
+                if (!int.TryParse(m.Groups[1].Value, out val1) || !int.TryParse(m.Groups[2].Value, out val2))
+                {
+                    yield return "sendtochaterror Invalid segments! Must be in the range from 1 to 14";
+                    yield break;
+                }
+                if (val1 > 14 || val2 > 14 || val1 < 1 || val2 < 1)
+                {
+                    yield return "sendtochaterror Invalid segments! Must be in the range from 1 to 14";
+                    yield break;
+                }
+                SegmentSels[val1 - 1].OnInteract();
+                yield return new WaitForSeconds(0.2f);
+                SegmentSels[val2 - 1].OnInteract();
+                yield return new WaitForSeconds(0.1f);
+                continue;
+            }
+            m = Regex.Match(cmd, @"^\s*(red|green|blue)\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+            if (m.Success)
+            {
+                var col = m.Groups[1].ToString();
+                if (col == "red")
+                    ColorPickerSels[0].OnInteract();
+                else if (col == "green")
+                    ColorPickerSels[1].OnInteract();
+                else if (col == "blue")
+                    ColorPickerSels[2].OnInteract();
+                yield return new WaitForSeconds(0.1f);
+                continue;
+            }
+            m = Regex.Match(cmd, @"^\s*(left|right)\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+            if (m.Success)
+            {
+                if (_isCycling)
+                {
+                    yield return "sendtochaterror You can't go left or right if the sequence is still cycling!";
+                    yield break;
+                }
+                var btn = m.Groups[1].ToString();
+                if (btn == "left")
+                    LeftSel.OnInteract();
+                else if (btn == "right")
+                    RightSel.OnInteract();
+                yield return new WaitForSeconds(0.1f);
+                continue;
+            }
+            m = Regex.Match(cmd, @"^\s*(pause|play|resume|toggle)\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+            if (m.Success)
+            {
+                PlayPauseSel.OnInteract();
+                yield return new WaitForSeconds(0.1f);
+                continue;
+            }
+            m = Regex.Match(cmd, @"^\s*(submit)\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+            if (m.Success)
+            {
+                SubmitSel.OnInteract();
+                yield return new WaitForSeconds(0.1f);
+                continue;
+            }
             yield break;
         }
-        m = Regex.Match(command, @"^\s*(submit)\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-        if (m.Success)
-        {
-            yield return null;
-            SubmitSel.OnInteract();
-            yield return new WaitForSeconds(0.1f);
-            yield break;
-        }
-        yield break;
     }
 
     private IEnumerator TwitchHandleForcedSolve()
