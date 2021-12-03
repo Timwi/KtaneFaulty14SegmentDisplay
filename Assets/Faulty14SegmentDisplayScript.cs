@@ -7,7 +7,7 @@ using Rnd = UnityEngine.Random;
 using System;
 using System.Text.RegularExpressions;
 
-public class Faulty14SegmentDisplaysScript : MonoBehaviour
+public class Faulty14SegmentDisplayScript : MonoBehaviour
 {
     public KMAudio Audio;
     public KMBombModule Module;
@@ -90,9 +90,9 @@ public class Faulty14SegmentDisplaysScript : MonoBehaviour
         _bSegPositions.Shuffle();
 
         _cycleSequence = StartCoroutine(CycleSequence());
-        Debug.LogFormat("[Faulty 14 Segment Displays #{0}] Shuffled red segment order: {1}", _moduleId, _rSegPositions.Select(i => i + 1).Join(" "));
-        Debug.LogFormat("[Faulty 14 Segment Displays #{0}] Shuffled green segment order: {1}", _moduleId, _gSegPositions.Select(i => i + 1).Join(" "));
-        Debug.LogFormat("[Faulty 14 Segment Displays #{0}] Shuffled blue segment order: {1}", _moduleId, _bSegPositions.Select(i => i + 1).Join(" "));
+        Debug.LogFormat("[Faulty 14 Segment Display #{0}] Shuffled red segment order: {1}", _moduleId, _rSegPositions.Select(i => i + 1).Join(" "));
+        Debug.LogFormat("[Faulty 14 Segment Display #{0}] Shuffled green segment order: {1}", _moduleId, _gSegPositions.Select(i => i + 1).Join(" "));
+        Debug.LogFormat("[Faulty 14 Segment Display #{0}] Shuffled blue segment order: {1}", _moduleId, _bSegPositions.Select(i => i + 1).Join(" "));
 
         PlayPauseSel.OnInteract += delegate ()
         {
@@ -176,9 +176,9 @@ public class Faulty14SegmentDisplaysScript : MonoBehaviour
             if (_rSegPositions[i] != i || _gSegPositions[i] != i || _bSegPositions[i] != i)
                 correct[i] = 1;
         }
-        Debug.LogFormat("[Faulty 14 Segment Displays #{0}] Submitted red segments: {1}", _moduleId, _rSegPositions.Select(i => i + 1).Join(" "));
-        Debug.LogFormat("[Faulty 14 Segment Displays #{0}] Submitted green segments: {1}", _moduleId, _gSegPositions.Select(i => i + 1).Join(" "));
-        Debug.LogFormat("[Faulty 14 Segment Displays #{0}] Submitted blue segments: {1}", _moduleId, _bSegPositions.Select(i => i + 1).Join(" "));
+        Debug.LogFormat("[Faulty 14 Segment Display #{0}] Submitted red segments: {1}", _moduleId, _rSegPositions.Select(i => i + 1).Join(" "));
+        Debug.LogFormat("[Faulty 14 Segment Display #{0}] Submitted green segments: {1}", _moduleId, _gSegPositions.Select(i => i + 1).Join(" "));
+        Debug.LogFormat("[Faulty 14 Segment Display #{0}] Submitted blue segments: {1}", _moduleId, _bSegPositions.Select(i => i + 1).Join(" "));
         _isAnimating = true;
         if (correct.Contains(1))
         {
@@ -188,13 +188,13 @@ public class Faulty14SegmentDisplaysScript : MonoBehaviour
                 SegmentObjs[i].GetComponent<MeshRenderer>().material = SegmentMats[correct[i] == 0 ? 2 : 4];
             Module.HandleStrike();
             StartCoroutine(StrikeAnimation());
-            Debug.LogFormat("[Faulty 14 Segment Displays #{0}] Not all color channels have been correctly swapped. Strike.", _moduleId);
+            Debug.LogFormat("[Faulty 14 Segment Display #{0}] Not all color channels have been correctly swapped. Strike.", _moduleId);
         }
         else
         {
             ;
             StartCoroutine(SolveAnimation());
-            Debug.LogFormat("[Faulty 14 Segment Displays #{0}] All color channels have been correctly swapped. Module solved.", _moduleId);
+            Debug.LogFormat("[Faulty 14 Segment Display #{0}] All color channels have been correctly swapped. Module solved.", _moduleId);
         }
         return false;
     }

@@ -450,7 +450,7 @@ GameObject:
   - component: {fileID: 114704111647474794}
   - component: {fileID: 114854224913148258}
   m_Layer: 0
-  m_Name: Faulty14SegmentDisplays
+  m_Name: Faulty14SegmentDisplay
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5605,8 +5605,8 @@ MonoBehaviour:
   m_Script: {fileID: -119419473, guid: 45b809be76fd7a3468b6f517bced6f28, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ModuleType: Faulty14SegmentDisplaysModule
-  ModuleDisplayName: Faulty 14 Segment Displays
+  ModuleType: Faulty14SegmentDisplayModule
+  ModuleDisplayName: Faulty 14 Segment Display
   RequiresTimerVisibility: 0
 --- !u!114 &114679752800180914
 MonoBehaviour:

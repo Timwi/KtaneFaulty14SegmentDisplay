@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Name: WorkshopItem
   m_EditorClassIdentifier: 
   WorkshopPublishedFileID: 2671309812
-  Title: Faulty 14 Segment Displays
+  Title: Faulty 14 Segment Display
   Tags:
   - Regular Module
