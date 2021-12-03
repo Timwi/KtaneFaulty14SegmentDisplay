@@ -123,9 +123,9 @@ public class Faulty14SegmentDisplayScript : MonoBehaviour
             {
                 if (!_isCycling)
                 {
-                    _currentRSequenceIx = (_currentRSequenceIx + 1) % 26;
-                    _currentGSequenceIx = (_currentGSequenceIx + 1) % 26;
-                    _currentBSequenceIx = (_currentBSequenceIx + 1) % 26;
+                    _currentRSequenceIx = (_currentRSequenceIx + 25) % 26;
+                    _currentGSequenceIx = (_currentGSequenceIx + 25) % 26;
+                    _currentBSequenceIx = (_currentBSequenceIx + 25) % 26;
                     for (int i = 0; i < SegmentObjs.Length; i++)
                         SegmentObjs[i].GetComponent<MeshRenderer>().material = SegmentMats[
                             (_segmentArragements[_currentRSequenceIx][_rSegPositions[i]] ? 4 : 0) +
@@ -143,9 +143,9 @@ public class Faulty14SegmentDisplayScript : MonoBehaviour
             {
                 if (!_isCycling)
                 {
-                    _currentRSequenceIx = (_currentRSequenceIx + 25) % 26;
-                    _currentGSequenceIx = (_currentGSequenceIx + 25) % 26;
-                    _currentBSequenceIx = (_currentBSequenceIx + 25) % 26;
+                    _currentRSequenceIx = (_currentRSequenceIx + 1) % 26;
+                    _currentGSequenceIx = (_currentGSequenceIx + 1) % 26;
+                    _currentBSequenceIx = (_currentBSequenceIx + 1) % 26;
                     for (int i = 0; i < SegmentObjs.Length; i++)
                         SegmentObjs[i].GetComponent<MeshRenderer>().material = SegmentMats[
                             (_segmentArragements[_currentRSequenceIx][_rSegPositions[i]] ? 4 : 0) +
@@ -345,7 +345,6 @@ public class Faulty14SegmentDisplayScript : MonoBehaviour
         var commands = command.ToLowerInvariant().Split(';', ',');
         foreach (var cmd in commands)
         {
-            Debug.Log(cmd);
             m = Regex.Match(cmd, @"^\s*swap\s*(\d+)\s*(\d+)\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
             if (m.Success)
             {

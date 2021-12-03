@@ -336,7 +336,7 @@ GameObject:
   - component: {fileID: 64077209083738776}
   - component: {fileID: 114807637326289498}
   m_Layer: 0
-  m_Name: Right
+  m_Name: Left
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -394,7 +394,7 @@ GameObject:
   - component: {fileID: 64163684081447730}
   - component: {fileID: 114281911218289990}
   m_Layer: 0
-  m_Name: Left
+  m_Name: Right
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1490,7 +1490,7 @@ Transform:
   m_Children:
   - {fileID: 4739373261820498}
   m_Father: {fileID: 4901591342807342}
-  m_RootOrder: 5
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: -90, y: 270, z: 0}
 --- !u!4 &4247127775751334
 Transform:
@@ -1960,7 +1960,7 @@ Transform:
   m_Children:
   - {fileID: 4162398209747074}
   m_Father: {fileID: 4901591342807342}
-  m_RootOrder: 6
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: -90, y: 90, z: 0}
 --- !u!4 &4686689972971220
 Transform:
@@ -2114,8 +2114,8 @@ Transform:
   - {fileID: 4409485093836030}
   - {fileID: 4462535918626246}
   - {fileID: 4463955728403088}
-  - {fileID: 4239448624121126}
   - {fileID: 4657143161857126}
+  - {fileID: 4239448624121126}
   - {fileID: 4426610133945458}
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -5667,7 +5667,7 @@ MonoBehaviour:
   - {fileID: 114937191459523466}
   - {fileID: 114018166361307726}
   IsPassThrough: 0
-  ChildRowLength: 0
+  ChildRowLength: 1
   Highlight: {fileID: 114544451596153056}
   SelectableColliders: []
   DefaultSelectableIndex: 0
@@ -5883,8 +5883,8 @@ MonoBehaviour:
   - {fileID: 114224116782355436}
   - {fileID: 114209307683935038}
   PlayPauseSel: {fileID: 114018166361307726}
-  LeftSel: {fileID: 114892094197088450}
-  RightSel: {fileID: 114937191459523466}
+  LeftSel: {fileID: 114937191459523466}
+  RightSel: {fileID: 114892094197088450}
   SubmitSel: {fileID: 114333464823130994}
   ColorPickerSels:
   - {fileID: 114307968211019252}
