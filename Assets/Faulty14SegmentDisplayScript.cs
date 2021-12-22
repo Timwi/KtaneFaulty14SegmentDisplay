@@ -384,7 +384,7 @@ public class Faulty14SegmentDisplayScript : MonoBehaviour
                 int amount;
                 if (!int.TryParse(m.Groups["amt"].Value, out amount) || amount < 1 || amount > 26)
                 {
-                    yield return string.Format("sendtochaterror ì{0}î is an invalid amount by which to move left or right (must be 1ñ26).", m.Groups["amt"].Value);
+                    yield return string.Format("sendtochaterror ‚Äú{0}‚Äù is an invalid amount by which to move left or right (must be 1‚Äì26).", m.Groups["amt"].Value);
                     yield break;
                 }
                 commands.Add(new TpMove { Right = m.Groups["r"].Success, Amount = amount });
