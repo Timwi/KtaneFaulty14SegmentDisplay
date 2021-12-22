@@ -437,8 +437,11 @@ public class Faulty14SegmentDisplayScript : MonoBehaviour
                     yield return "sendtochaterror You can't go left or right if the sequence is cycling!";
                     yield break;
                 }
-                (move.Right ? RightSel : LeftSel).OnInteract();
-                yield return new WaitForSeconds(0.1f);
+                for (var i = 0; i < move.Amount; i++)
+                {
+                    (move.Right ? RightSel : LeftSel).OnInteract();
+                    yield return new WaitForSeconds(0.1f);
+                }
                 continue;
             }
 
