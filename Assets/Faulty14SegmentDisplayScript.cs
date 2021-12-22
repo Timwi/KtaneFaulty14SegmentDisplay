@@ -32,7 +32,7 @@ public class Faulty14SegmentDisplayScript : MonoBehaviour
     private static int _moduleIdCounter = 1;
     private bool _moduleSolved;
 
-    private bool[][] _segmentArragements = new bool[26][] {
+    private static readonly bool[][] _segmentArragements = new bool[26][] {
         new bool[14] { true, true, false, false, false, true, true, true, true, false, false, false, true, false },    //A
         new bool[14] { true, false, false, true, false, true, false, true, false, false, true, false, true, true },    //B
         new bool[14] { true, true, false, false, false, false, false, false, true, false, false, false, false, true }, //C
@@ -336,17 +336,26 @@ public class Faulty14SegmentDisplayScript : MonoBehaviour
     }
 
 #pragma warning disable 0414
-    private readonly string TwitchHelpMessage = "!{0} swap 1 14 [Swap segments 1 and 14] | !{0} red [Pick colors red/green/blue] | !{0} toggle [Pauses/resumes the cycle] | !{0} left/right [Cycle left/right in the sequence] | !{0} submit [Submit the answer] | Commands can be chained with commas and semicolons.";
+    private readonly string TwitchHelpMessage = "!{0} swap 1 14 [Swap segments 1 and 14] | !{0} red [Pick colors red/green/blue] | !{0} toggle [Pauses/resumes the cycle] | !{0} left/right <#> [Cycle left/right in the sequence, optionally with amount] | !{0} submit [Submit the answer] | Commands can be chained with commas and semicolons.";
 #pragma warning restore 0414
+
+    private abstract class TpCommand { }
+    private sealed class TpSwap : TpCommand { public int Segment1, Segment2; }
+    private sealed class TpColor : TpCommand { public int Color; }
+    private sealed class TpToggle : TpCommand { }
+    private sealed class TpMove : TpCommand { public bool Right; public int Amount; }
+    private sealed class TpSubmit : TpCommand { }
 
     private IEnumerator ProcessTwitchCommand(string command)
     {
+        // First, parse all of the commands and represent them as TpCommand objects
+        var commandPieces = command.ToLowerInvariant().Split(';', ',');
+        var commands = new List<TpCommand>();
         Match m;
-        var commands = command.ToLowerInvariant().Split(';', ',');
-        foreach (var cmd in commands)
+
+        foreach (var cmd in commandPieces)
         {
-            m = Regex.Match(cmd, @"^\s*swap\s*(\d+)\s*(\d+)\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-            if (m.Success)
+            if ((m = Regex.Match(cmd, @"^\s*swap\s*(\d+)\s*(\d+)\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)).Success)
             {
                 int val1;
                 int val2;
@@ -360,102 +369,93 @@ public class Faulty14SegmentDisplayScript : MonoBehaviour
                     yield return "sendtochaterror Invalid segments! Must be in the range from 1 to 14";
                     yield break;
                 }
+                commands.Add(new TpSwap { Segment1 = val1, Segment2 = val2 });
                 continue;
             }
-            m = Regex.Match(cmd, @"^\s*(red|green|blue)\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-            if (m.Success)
+
+            if ((m = Regex.Match(cmd, @"^\s*((?<r>red)|(?<g>green)|blue)\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)).Success)
             {
+                commands.Add(new TpColor { Color = m.Groups["r"].Success ? 0 : m.Groups["g"].Success ? 1 : 2 });
                 continue;
             }
-            m = Regex.Match(cmd, @"^\s*(left|right)\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-            if (m.Success)
+
+            if ((m = Regex.Match(cmd, @"^\s*(left|(?<r>right))(\s+(?<amt>\d+))?\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)).Success)
             {
-                if (_isCycling)
+                int amount;
+                if (!int.TryParse(m.Groups["amt"].Value, out amount) || amount < 1 || amount > 26)
                 {
-                    yield return "sendtochaterror You can't go left or right if the sequence is still cycling!";
+                    yield return string.Format("sendtochaterror “{0}” is an invalid amount by which to move left or right (must be 1–26).", m.Groups["amt"].Value);
                     yield break;
                 }
+                commands.Add(new TpMove { Right = m.Groups["r"].Success, Amount = amount });
                 continue;
             }
-            m = Regex.Match(cmd, @"^\s*(pause|play|resume|toggle)\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-            if (m.Success)
+
+            if ((m = Regex.Match(cmd, @"^\s*(pause|play|resume|toggle)\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)).Success)
             {
-                continue;
-            }   
-            m = Regex.Match(cmd, @"^\s*(submit)\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-            if (m.Success)
-            {
+                commands.Add(new TpToggle());
                 continue;
             }
+
+            if ((m = Regex.Match(cmd, @"^\s*submit\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)).Success)
+            {
+                commands.Add(new TpSubmit());
+                continue;
+            }
+
             yield break;
         }
+
+        // Next, execute the commands
         yield return null;
         foreach (var cmd in commands)
         {
-            m = Regex.Match(cmd, @"^\s*swap\s*(\d+)\s*(\d+)\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-            if (m.Success)
+            TpSwap swap;
+            TpColor color;
+            TpMove move;
+
+            if ((swap = cmd as TpSwap) != null)
             {
-                int val1;
-                int val2;
-                if (!int.TryParse(m.Groups[1].Value, out val1) || !int.TryParse(m.Groups[2].Value, out val2))
-                {
-                    yield return "sendtochaterror Invalid segments! Must be in the range from 1 to 14";
-                    yield break;
-                }
-                if (val1 > 14 || val2 > 14 || val1 < 1 || val2 < 1)
-                {
-                    yield return "sendtochaterror Invalid segments! Must be in the range from 1 to 14";
-                    yield break;
-                }
-                SegmentSels[val1 - 1].OnInteract();
+                SegmentSels[swap.Segment1 - 1].OnInteract();
                 yield return new WaitForSeconds(0.2f);
-                SegmentSels[val2 - 1].OnInteract();
+                SegmentSels[swap.Segment2 - 1].OnInteract();
                 yield return new WaitForSeconds(0.1f);
                 continue;
             }
-            m = Regex.Match(cmd, @"^\s*(red|green|blue)\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-            if (m.Success)
+
+            if ((color = cmd as TpColor) != null)
             {
-                var col = m.Groups[1].ToString();
-                if (col == "red")
-                    ColorPickerSels[0].OnInteract();
-                else if (col == "green")
-                    ColorPickerSels[1].OnInteract();
-                else if (col == "blue")
-                    ColorPickerSels[2].OnInteract();
+                ColorPickerSels[color.Color].OnInteract();
                 yield return new WaitForSeconds(0.1f);
                 continue;
             }
-            m = Regex.Match(cmd, @"^\s*(left|right)\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-            if (m.Success)
+
+            if ((move = cmd as TpMove) != null)
             {
                 if (_isCycling)
                 {
-                    yield return "sendtochaterror You can't go left or right if the sequence is still cycling!";
+                    yield return "sendtochaterror You can't go left or right if the sequence is cycling!";
                     yield break;
                 }
-                var btn = m.Groups[1].ToString();
-                if (btn == "left")
-                    LeftSel.OnInteract();
-                else if (btn == "right")
-                    RightSel.OnInteract();
+                (move.Right ? RightSel : LeftSel).OnInteract();
                 yield return new WaitForSeconds(0.1f);
                 continue;
             }
-            m = Regex.Match(cmd, @"^\s*(pause|play|resume|toggle)\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-            if (m.Success)
+
+            if (cmd is TpToggle)
             {
                 PlayPauseSel.OnInteract();
                 yield return new WaitForSeconds(0.1f);
                 continue;
             }
-            m = Regex.Match(cmd, @"^\s*(submit)\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-            if (m.Success)
+
+            if (cmd is TpSubmit)
             {
                 SubmitSel.OnInteract();
                 yield return new WaitForSeconds(0.1f);
                 continue;
             }
+
             yield break;
         }
     }
